@@ -30,6 +30,12 @@
   .bar{height:16px;background:#0f172a;border-radius:8px;overflow:hidden} .bar i{display:block;height:100%;background:var(--green)}
   pre{white-space:pre-wrap;background:#0f172a;padding:14px;border-radius:10px;border:1px solid var(--line)}
   .steps{counter-reset:step} .steps li{margin:8px 0}
+  .charts{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-top:16px}
+  .chart-card{background:#0f172a;border:1px solid var(--line);border-radius:12px;padding:16px}
+  .chart-card h3{margin-top:0;font-size:16px}
+  .legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:14px}
+  .legend span{display:flex;align-items:center;gap:8px} .swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+  @media(max-width:760px){.charts{grid-template-columns:1fr}}
   footer{max-width:1100px;margin:0 auto;padding:8px 24px 40px;color:var(--dim);font-size:14px}
   @media(max-width:640px){.hero{padding:28px 16px} .hero h1{font-size:32px} main{padding:14px} section{padding:18px}}
 </style>
@@ -77,7 +83,18 @@
     <h2>Overview</h2>
     <div class="kpis" id="kpis"></div>
     <p>Retention window: <b>90 days</b>. After that window, personal fields are anonymized or deleted, unless the order is in the returns/refunds exception queue.</p>
-    <canvas id="chart" width="1000" height="220" style="width:100%;height:auto;background:#0f172a;border-radius:10px"></canvas>
+    <p style="color:var(--dim)">Both charts below use the same live counts as the KPI cards above, and update when you run a retention sweep.</p>
+    <div class="charts">
+      <div class="chart-card">
+        <h3>Order status — share</h3>
+        <canvas id="donut" width="360" height="360" style="width:100%;height:auto"></canvas>
+        <div class="legend" id="donutLegend"></div>
+      </div>
+      <div class="chart-card">
+        <h3>Order status — count</h3>
+        <canvas id="chart" width="640" height="360" style="width:100%;height:auto"></canvas>
+      </div>
+    </div>
   </section>
 
   <section id="vault">
@@ -165,23 +182,50 @@ function counts(){
     active: orders.filter(o=>o.status==="active").length
   };
 }
-function renderChart(){
-  const c=counts(); const canvas=document.getElementById("chart"); if(!canvas) return;
+function statusItems(){
+  const c=counts();
+  return [["Active",c.active,"#4ade80"],["Due for deletion",c.due,"#f87171"],["Anonymized",c.anonymized,"#60a5fa"],["Exception queue",c.exception,"#facc15"]];
+}
+function renderDonut(){
+  const canvas=document.getElementById("donut"); if(!canvas) return;
   const ctx=canvas.getContext("2d"); ctx.clearRect(0,0,canvas.width,canvas.height);
-  const items=[["Active",c.active,"#4ade80"],["Due",c.due,"#f87171"],["Anonymized",c.anonymized,"#60a5fa"],["Exception",c.exception,"#facc15"]];
+  const items=statusItems(); const total=Math.max(items.reduce((s,x)=>s+x[1],0),1);
+  let angle=-Math.PI/2; const cx=180, cy=170, r=120, inner=68;
+  items.forEach(item=>{
+    const slice=(item[1]/total)*Math.PI*2;
+    if(item[1]===0) return;
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,angle+slice); ctx.closePath();
+    ctx.fillStyle=item[2]; ctx.fill(); angle+=slice;
+  });
+  ctx.beginPath(); ctx.arc(cx,cy,inner,0,Math.PI*2); ctx.fillStyle="#0f172a"; ctx.fill();
+  ctx.fillStyle="#e6edf3"; ctx.font="bold 28px sans-serif"; ctx.textAlign="center";
+  ctx.fillText(String(total), cx, cy+4);
+  ctx.fillStyle="#94a3b8"; ctx.font="13px sans-serif"; ctx.fillText("synthetic orders", cx, cy+24);
+  ctx.textAlign="left";
+  document.getElementById("donutLegend").innerHTML = items.map(item=>
+    `<span><i class="swatch" style="background:${item[2]}"></i>${item[0]}: ${item[1]} (${Math.round(item[1]/total*100)}%)</span>`).join("");
+}
+function renderChart(){
+  const canvas=document.getElementById("chart"); if(!canvas) return;
+  const ctx=canvas.getContext("2d"); ctx.clearRect(0,0,canvas.width,canvas.height);
+  const items=statusItems();
   const max=Math.max(...items.map(x=>x[1]),1);
+  ctx.strokeStyle="#1e293b"; ctx.fillStyle="#94a3b8"; ctx.font="12px sans-serif";
+  for(let g=0; g<=4; g++){ const y=30+g*60; ctx.beginPath(); ctx.moveTo(50,y); ctx.lineTo(620,y); ctx.stroke(); ctx.fillText(String(Math.round(max*(4-g)/4)), 20, y+4); }
   items.forEach((item,i)=>{
-    const x=60+i*240, h=Math.round((item[1]/max)*140), y=190-h;
-    ctx.fillStyle=item[2]; ctx.fillRect(x,y,120,h);
-    ctx.fillStyle="#e6edf3"; ctx.font="16px sans-serif"; ctx.fillText(String(item[1]), x+40, y-8);
-    ctx.fillStyle="#94a3b8"; ctx.font="14px sans-serif"; ctx.fillText(item[0], x+20, 212);
+    const x=80+i*145, h=Math.round((item[1]/max)*240), y=270-h;
+    ctx.fillStyle=item[2]; ctx.fillRect(x,y,80,h);
+    ctx.fillStyle="#e6edf3"; ctx.font="bold 16px sans-serif"; ctx.textAlign="center"; ctx.fillText(String(item[1]), x+40, y-8);
+    ctx.fillStyle="#94a3b8"; ctx.font="13px sans-serif";
+    const words=item[0].split(" "); words.forEach((w,j)=>ctx.fillText(w, x+40, 292+j*16));
+    ctx.textAlign="left";
   });
 }
 function renderKPIs(){
   const c=counts();
   document.getElementById("kpis").innerHTML =
     `<div class="kpi"><b>${c.total}</b><span>Synthetic orders</span></div><div class="kpi"><b>${c.due}</b><span>Due for deletion</span></div><div class="kpi"><b>${c.anonymized}</b><span>Anonymized</span></div><div class="kpi"><b>${c.exception}</b><span>Exception queue</span></div><div class="kpi"><b>${c.active}</b><span>Active</span></div>`;
-  renderChart();
+  renderChart(); renderDonut();
 }
 function renderOrders(){
   const f=document.getElementById("filter").value;
