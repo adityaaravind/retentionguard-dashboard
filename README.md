@@ -41,10 +41,14 @@ then open http://localhost:8000
 ### Turn on the live demo (repo owner, one time)
 
 Repo > Settings > Pages > Build and deployment > Source:
-**GitHub Actions**. The workflow in `.github/workflows/static.yml`
-then deploys every push to `main` automatically. Until that setting
-is on, the live demo link above will show a 404 — use the
-download or clone options instead.
+**Deploy from a branch**, Branch: `main`, Folder: `/ (root)`.
+Save, wait a minute, and the live demo link above will work.
+Until that setting is on, the live demo link will show a 404 —
+use the download or clone options instead. No workflow file is
+needed for this branch deploy; the file in
+`.github/workflows/static.yml` in the local copy is an optional
+Actions alternative, and workflow files have to be added through
+the GitHub web UI, not through the automated push used here.
 
 ## What it does
 
