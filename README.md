@@ -1,8 +1,10 @@
-# RetentionGuard Dashboard
+# RetentionGuard — Data that should be gone, proven gone
 
-A generic third-party data lifecycle guard dashboard. It shows, in one
-place, how customer data should age out, be proven deleted, and be
-protected from bulk export — before it can be stolen in a breach.
+**What is this project?** RetentionGuard is a generic, defensive dashboard for third-party data handling. When a company uses a third party to store, ship, or analyse orders, that third party often keeps customer names, emails, phone numbers, addresses, and order numbers long after the order is finished. RetentionGuard shows, in one place, how that data should age out after a 90-day retention window, how deletion can be proven with a hash-chained certificate instead of merely promised, and how bulk personal-data exports should be blocked before they leave a system — so a later breach exposes far less, and a vendor's deletion claim can actually be checked.
+
+![RetentionGuard demo](docs/retentionguard-dashboard.gif)
+
+*Above: a short motion graphic of the dashboard — retention sweep, deletion certificate, blocked export, vendor mismatch, and breach-scope tool. The dashboard page itself also explains the project at the top, so visitors do not need to read this README first.*
 
 **All data is synthetic and generated in the browser. No real personal
 data, no network calls, no exploit code, and no company is named.**
@@ -80,9 +82,9 @@ cryptographic proof system.
 ## Files
 
 - `index.html` — the whole dashboard, standalone, no dependencies
-- `docs/` — put the motion-graphic GIF here when you upload it
-  through the GitHub web UI (binary files are not pushed by the
-  automated connector used for this repo)
+- `docs/retentionguard-dashboard.gif` — motion graphic shown at the
+  top of this README (uploaded through the GitHub web UI, as binary
+  files are not pushed by the automated connector used for this repo)
 
 ## License
 

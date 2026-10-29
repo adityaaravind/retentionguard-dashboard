@@ -3,42 +3,92 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RetentionGuard Dashboard</title>
+<title>RetentionGuard — Data Lifecycle Guard Dashboard</title>
+<meta name="description" content="RetentionGuard is a generic, defensive dashboard that shows how third-party customer data should age out, be proven deleted, and be protected from bulk export. All data is synthetic.">
 <style>
-  :root{--bg:#0c121c;--card:#1e293b;--green:#4ade80;--red:#f87171;--yellow:#facc15;--text:#e6edf3;--dim:#8c9baa}
-  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
-  header{padding:24px 32px;border-bottom:1px solid #334155} h1{margin:0;color:var(--green)} p{color:var(--dim)}
-  main{max-width:1100px;margin:0 auto;padding:24px} section{background:var(--card);border-radius:12px;padding:20px;margin:0 0 20px}
+  :root{--bg:#0b1220;--card:#162233;--card2:#0f172a;--line:#334155;--green:#4ade80;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;--text:#e6edf3;--dim:#94a3b8}
+  *{box-sizing:border-box} html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
+  a{color:var(--green)}
+  nav{position:sticky;top:0;z-index:10;background:rgba(11,18,32,.95);border-bottom:1px solid var(--line);padding:12px 24px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  nav b{color:var(--green);font-size:18px} nav a{color:var(--dim);text-decoration:none;font-weight:600} nav a:hover{color:var(--text)}
+  .hero{max-width:1100px;margin:0 auto;padding:48px 24px 8px}
+  .hero h1{font-size:44px;line-height:1.1;margin:0 0 12px} .hero h1 span{color:var(--green)}
+  .hero p.lead{font-size:19px;color:#cbd5e1;max-width:820px}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0} .badge{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--dim);background:var(--card)}
+  main{max-width:1100px;margin:0 auto;padding:24px}
+  section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:0 0 20px}
+  section h2{margin-top:0} section h3{margin-bottom:6px}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .tool{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:16px}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-  .kpi{background:#0f172a;border-radius:10px;padding:16px} .kpi b{font-size:28px;display:block}
-  button{background:var(--green);color:#0c121c;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
-  button.secondary{background:#334155;color:var(--text)} input,select{padding:8px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:var(--text)}
-  table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:8px;border-bottom:1px solid #334155;text-align:left}
+  .kpi{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:16px} .kpi b{font-size:30px;display:block} .kpi span{color:var(--dim);font-size:14px}
+  button{background:var(--green);color:#0b1220;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
+  button.secondary{background:#334155;color:var(--text)} input,select{padding:8px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:var(--text);margin:4px 0}
+  table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left}
   .ok{color:var(--green)} .bad{color:var(--red)} .warn{color:var(--yellow)}
   .bar{height:16px;background:#0f172a;border-radius:8px;overflow:hidden} .bar i{display:block;height:100%;background:var(--green)}
-  pre{white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:8px}
-  @media(max-width:600px){main{padding:12px} header{padding:16px}}
+  pre{white-space:pre-wrap;background:#0f172a;padding:14px;border-radius:10px;border:1px solid var(--line)}
+  .steps{counter-reset:step} .steps li{margin:8px 0}
+  footer{max-width:1100px;margin:0 auto;padding:8px 24px 40px;color:var(--dim);font-size:14px}
+  @media(max-width:640px){.hero{padding:28px 16px} .hero h1{font-size:32px} main{padding:14px} section{padding:18px}}
 </style>
 </head>
 <body>
-<header>
-  <h1>RetentionGuard</h1>
-  <p>A generic third-party data lifecycle guard dashboard. All data on this page is synthetic and generated in your browser. No real personal data, no network calls, no exploit code.</p>
-</header>
+<nav>
+  <b>RetentionGuard</b>
+  <a href="#what">What is this?</a><a href="#how">How to use it</a><a href="#vault">Order Vault</a><a href="#guard">Export Guard</a><a href="#breach">Breach Scope</a><a href="#about">About</a>
+</nav>
+
+<div class="hero">
+  <h1>RetentionGuard<br><span>Data that should be gone, proven gone.</span></h1>
+  <p class="lead">RetentionGuard is a generic, defensive dashboard for third-party data handling. It shows how customer order data should age out after a retention window, how deletion can be proven instead of merely promised, and how bulk personal-data exports should be blocked before they leave a system.</p>
+  <div class="badges"><span class="badge">Synthetic data only</span><span class="badge">No backend required</span><span class="badge">No install</span><span class="badge">Runs entirely in your browser</span></div>
+  <p>If you opened this page without reading anything else, start here: this is a demonstration, not a real company's system. No real customer data is used, nothing is sent anywhere, and no account is changed by anything on this page.</p>
+</div>
+
 <main>
+  <section id="what">
+    <h2>What is this?</h2>
+    <p>When a company uses a third party to store, ship, or analyse orders, that third party often ends up holding customer names, emails, phone numbers, addresses, and order numbers long after the order is finished. If that data is kept indefinitely, a later breach exposes far more people than it should. If a vendor says “we deleted it” but cannot prove it, an auditor, a merchant, and a customer all have to take that on trust.</p>
+    <div class="grid3">
+      <div class="tool"><h3>1. Age it out</h3><p>Orders pass a 90-day retention window. After that, personal fields are anonymized, unless the order is in a visible returns/refunds exception queue.</p></div>
+      <div class="tool"><h3>2. Prove deletion</h3><p>Each sweep issues a deletion certificate linked by a hash chain. You can verify it, or simulate tampering and watch verification fail.</p></div>
+      <div class="tool"><h3>3. Guard exports</h3><p>Bulk personal-data exports, and non-parameterized queries, are blocked and alerted. Limited, parameterized exports are allowed.</p></div>
+      <div class="tool"><h3>4. Check vendors</h3><p>A vendor's deletion claim is checked against counts and sample records. A mismatch is flagged, not filed away.</p></div>
+      <div class="tool"><h3>5. Scope a breach fast</h3><p>Given a compromised system and date range, generate the affected synthetic customers, exposed fields, and a notification draft, instead of discovering the full scope weeks later.</p></div>
+      <div class="tool"><h3>6. Keep it auditable</h3><p>Every step above produces a record you can show: counts, certificates, blocked exports, and vendor checks, in one place.</p></div>
+    </div>
+  </section>
+
+  <section id="how">
+    <h2>How to use it — in 2 minutes</h2>
+    <ol class="steps">
+      <li><b>Look at the Overview</b> below: how many synthetic orders are active, due for deletion, anonymized, or held as exceptions.</li>
+      <li><b>Click “Run retention sweep”</b> in the Order Vault. Watch due orders become anonymized and a deletion certificate appear.</li>
+      <li><b>Click “Verify certificate”, then “Simulate tampering”</b> to see why a hash chain matters.</li>
+      <li><b>Try the BI Export Guard</b> with the default 5,000-row, full personal-data query. It should be blocked. Then lower the rows, remove personal data, and tick “Parameterized query” to see an allowed export.</li>
+      <li><b>Check Vendor attestation</b>, then <b>Generate a breach-scope list</b> and download the synthetic CSV.</li>
+    </ol>
+    <p>No sign-in, no setup, and no data leaves your browser. Refreshing the page resets the demo to its starting state.</p>
+  </section>
+
   <section>
     <h2>Overview</h2>
     <div class="kpis" id="kpis"></div>
     <p>Retention window: <b>90 days</b>. After that window, personal fields are anonymized or deleted, unless the order is in the returns/refunds exception queue.</p>
+    <canvas id="chart" width="1000" height="220" style="width:100%;height:auto;background:#0f172a;border-radius:10px"></canvas>
+  </section>
+
+  <section id="vault">
+    <h2>Order Vault</h2>
+    <p>120 synthetic orders. Use the filter to see active, due, anonymized, and exception orders. Click the sweep button to anonymize due orders and issue a certificate.</p>
     <button onclick="runSweep()">Run retention sweep</button>
     <span id="sweepStatus"></span>
     <div class="bar" style="margin-top:12px"><i id="sweepBar" style="width:0%"></i></div>
-  </section>
-
-  <section>
-    <h2>Order Vault (synthetic sample)</h2>
-    <label>Filter: <select id="filter" onchange="renderOrders()"><option value="all">All</option><option value="active">Active</option><option value="due">Due for deletion</option><option value="anonymized">Anonymized</option><option value="exception">Exception queue</option></select></label>
+    <p><label>Filter: <select id="filter" onchange="renderOrders()"><option value="all">All</option><option value="active">Active</option><option value="due">Due for deletion</option><option value="anonymized">Anonymized</option><option value="exception">Exception queue</option></select></label></p>
     <table><thead><tr><th>Order</th><th>Age (days)</th><th>Status</th><th>Customer (synthetic)</th></tr></thead><tbody id="orders"></tbody></table>
+    <p style="color:var(--dim)">Showing the first 20 matching orders.</p>
   </section>
 
   <section>
@@ -49,8 +99,9 @@
     <p id="certCheck"></p>
   </section>
 
-  <section>
+  <section id="guard">
     <h2>BI Export Guard</h2>
+    <p>Analysts and reporting tools are a common way personal data leaves a system in bulk. This guard checks three things before an export is allowed: how many rows, whether full personal data is included, and whether the query is parameterized.</p>
     <label>Rows: <input id="rows" type="number" value="5000"></label>
     <label><input id="pii" type="checkbox" checked> Full personal data</label>
     <label><input id="param" type="checkbox"> Parameterized query</label>
@@ -67,8 +118,9 @@
     <p>A vendor claim is not filed away here. It is checked against counts and sample records, and a mismatch is flagged.</p>
   </section>
 
-  <section>
+  <section id="breach">
     <h2>Breach scope</h2>
+    <p>When an incident is discovered, the first question is usually “how many people, and what fields?” This tool answers that from the synthetic sample in seconds, and drafts the notification text, instead of letting the scope grow over successive updates.</p>
     <label>Compromised system: <select id="system"><option>BI reporting tool</option><option>Order export service</option><option>Vendor portal</option></select></label>
     <label>Date range: <input id="range" value="2019-11-01 to 2021-08-31"></label>
     <button onclick="breachScope()">Generate breach-scope list</button>
@@ -76,7 +128,21 @@
     <button class="secondary" onclick="downloadCSV()">Download CSV (synthetic)</button>
   </section>
 
+  <section id="about">
+    <h2>About this project</h2>
+    <h3>Scope</h3>
+    <p>RetentionGuard is a front-end demonstration of data-lifecycle controls for third-party order handling: retention windows, deletion proof, export guarding, vendor attestation checks, and breach scoping. It is intentionally generic and does not name, target, or connect to any real company or vendor.</p>
+    <h3>Methodology</h3>
+    <p>All 120 orders are generated in the browser from a small synthetic name list. Ages and statuses are assigned by rule, not taken from real records. The retention sweep, certificate hash, export guard, and breach-scope list all operate only on that synthetic sample.</p>
+    <h3>Limitations</h3>
+    <p>This is a demonstration, not a production compliance system. The certificate hash is a simple illustrative hash, not a production cryptographic proof. The export guard, vendor checks, and breach-scope tool do not connect to real databases, identity providers, or vendor systems. Do not use this page with real customer data, and do not present synthetic numbers as real incident numbers.</p>
+    <h3>Who this is for</h3>
+    <p>IT support and operations teams who own vendor and data-handling workflows, security and compliance reviewers who need to see deletion evidence, and anyone evaluating how retention, export controls, and breach scoping should work together in one place.</p>
+  </section>
 </main>
+<footer>
+  RetentionGuard — synthetic demo only. No real personal data, no network calls, no exploit code. MIT License, see the repository for details.
+</footer>
 <script>
 const first=["Alex","Priya","Jordan","Sam","Maria","Chris","Aisha","Tom","Nina","David"];
 const last=["Patel","Garcia","Kim","Nguyen","Smith","Ali","Brown","Lopez"];
@@ -99,10 +165,23 @@ function counts(){
     active: orders.filter(o=>o.status==="active").length
   };
 }
+function renderChart(){
+  const c=counts(); const canvas=document.getElementById("chart"); if(!canvas) return;
+  const ctx=canvas.getContext("2d"); ctx.clearRect(0,0,canvas.width,canvas.height);
+  const items=[["Active",c.active,"#4ade80"],["Due",c.due,"#f87171"],["Anonymized",c.anonymized,"#60a5fa"],["Exception",c.exception,"#facc15"]];
+  const max=Math.max(...items.map(x=>x[1]),1);
+  items.forEach((item,i)=>{
+    const x=60+i*240, h=Math.round((item[1]/max)*140), y=190-h;
+    ctx.fillStyle=item[2]; ctx.fillRect(x,y,120,h);
+    ctx.fillStyle="#e6edf3"; ctx.font="16px sans-serif"; ctx.fillText(String(item[1]), x+40, y-8);
+    ctx.fillStyle="#94a3b8"; ctx.font="14px sans-serif"; ctx.fillText(item[0], x+20, 212);
+  });
+}
 function renderKPIs(){
   const c=counts();
   document.getElementById("kpis").innerHTML =
-    `<div class="kpi"><b>${c.total}</b>Synthetic orders</div><div class="kpi"><b>${c.due}</b>Due for deletion</div><div class="kpi"><b>${c.anonymized}</b>Anonymized</div><div class="kpi"><b>${c.exception}</b>Exception queue</div><div class="kpi"><b>${c.active}</b>Active</div>`;
+    `<div class="kpi"><b>${c.total}</b><span>Synthetic orders</span></div><div class="kpi"><b>${c.due}</b><span>Due for deletion</span></div><div class="kpi"><b>${c.anonymized}</b><span>Anonymized</span></div><div class="kpi"><b>${c.exception}</b><span>Exception queue</span></div><div class="kpi"><b>${c.active}</b><span>Active</span></div>`;
+  renderChart();
 }
 function renderOrders(){
   const f=document.getElementById("filter").value;
