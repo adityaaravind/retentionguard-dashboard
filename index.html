@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RetentionGuard Dashboard</title>
+<style>
+  :root{--bg:#0c121c;--card:#1e293b;--green:#4ade80;--red:#f87171;--yellow:#facc15;--text:#e6edf3;--dim:#8c9baa}
+  *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  header{padding:24px 32px;border-bottom:1px solid #334155} h1{margin:0;color:var(--green)} p{color:var(--dim)}
+  main{max-width:1100px;margin:0 auto;padding:24px} section{background:var(--card);border-radius:12px;padding:20px;margin:0 0 20px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+  .kpi{background:#0f172a;border-radius:10px;padding:16px} .kpi b{font-size:28px;display:block}
+  button{background:var(--green);color:#0c121c;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
+  button.secondary{background:#334155;color:var(--text)} input,select{padding:8px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:var(--text)}
+  table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:8px;border-bottom:1px solid #334155;text-align:left}
+  .ok{color:var(--green)} .bad{color:var(--red)} .warn{color:var(--yellow)}
+  .bar{height:16px;background:#0f172a;border-radius:8px;overflow:hidden} .bar i{display:block;height:100%;background:var(--green)}
+  pre{white-space:pre-wrap;background:#0f172a;padding:12px;border-radius:8px}
+  @media(max-width:600px){main{padding:12px} header{padding:16px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>RetentionGuard</h1>
+  <p>A generic third-party data lifecycle guard dashboard. All data on this page is synthetic and generated in your browser. No real personal data, no network calls, no exploit code.</p>
+</header>
+<main>
+  <section>
+    <h2>Overview</h2>
+    <div class="kpis" id="kpis"></div>
+    <p>Retention window: <b>90 days</b>. After that window, personal fields are anonymized or deleted, unless the order is in the returns/refunds exception queue.</p>
+    <button onclick="runSweep()">Run retention sweep</button>
+    <span id="sweepStatus"></span>
+    <div class="bar" style="margin-top:12px"><i id="sweepBar" style="width:0%"></i></div>
+  </section>
+
+  <section>
+    <h2>Order Vault (synthetic sample)</h2>
+    <label>Filter: <select id="filter" onchange="renderOrders()"><option value="all">All</option><option value="active">Active</option><option value="due">Due for deletion</option><option value="anonymized">Anonymized</option><option value="exception">Exception queue</option></select></label>
+    <table><thead><tr><th>Order</th><th>Age (days)</th><th>Status</th><th>Customer (synthetic)</th></tr></thead><tbody id="orders"></tbody></table>
+  </section>
+
+  <section>
+    <h2>Deletion certificate</h2>
+    <p id="cert">No sweep run yet. Run a sweep to issue a certificate.</p>
+    <button class="secondary" onclick="verifyCert()">Verify certificate</button>
+    <button class="secondary" onclick="tamperCert()">Simulate tampering</button>
+    <p id="certCheck"></p>
+  </section>
+
+  <section>
+    <h2>BI Export Guard</h2>
+    <label>Rows: <input id="rows" type="number" value="5000"></label>
+    <label><input id="pii" type="checkbox" checked> Full personal data</label>
+    <label><input id="param" type="checkbox"> Parameterized query</label>
+    <button onclick="testExport()">Test this export</button>
+    <p id="exportResult"></p>
+  </section>
+
+  <section>
+    <h2>Vendor attestation</h2>
+    <table><thead><tr><th>Vendor</th><th>Claim</th><th>Found remaining</th><th>Result</th></tr></thead>
+    <tbody><tr><td>HarborLine</td><td>All deleted</td><td>253</td><td class="bad">MISMATCH - follow up required</td></tr>
+    <tr><td>NorthPost Logistics</td><td>All deleted</td><td>0</td><td class="ok">Verified</td></tr>
+    <tr><td>ParcelBridge</td><td>All deleted</td><td>0</td><td class="ok">Verified</td></tr></tbody></table>
+    <p>A vendor claim is not filed away here. It is checked against counts and sample records, and a mismatch is flagged.</p>
+  </section>
+
+  <section>
+    <h2>Breach scope</h2>
+    <label>Compromised system: <select id="system"><option>BI reporting tool</option><option>Order export service</option><option>Vendor portal</option></select></label>
+    <label>Date range: <input id="range" value="2019-11-01 to 2021-08-31"></label>
+    <button onclick="breachScope()">Generate breach-scope list</button>
+    <pre id="breachOut">No scope generated yet.</pre>
+    <button class="secondary" onclick="downloadCSV()">Download CSV (synthetic)</button>
+  </section>
+
+  <section>
+    <h2>LinkedIn title</h2>
+    <p><b>Recommended: “The best data breach is the data that was already gone.”</b></p>
+    <p>Alternatives: “I built RetentionGuard, a dashboard that makes data deletion provable, not just promised.” / “Your vendor said they deleted your customers' data. Can they prove it?” / “Retention is a security control, not a paperwork promise.”</p>
+  </section>
+</main>
+<script>
+const first=["Alex","Priya","Jordan","Sam","Maria","Chris","Aisha","Tom","Nina","David"];
+const last=["Patel","Garcia","Kim","Nguyen","Smith","Ali","Brown","Lopez"];
+let orders=[];
+for(let i=1;i<=120;i++){
+  const age = i<=40 ? Math.floor(Math.random()*80)+1 : i<=90 ? Math.floor(Math.random()*60)+85 : Math.floor(Math.random()*400)+200;
+  let status = age>90 ? "due" : "active";
+  if(i%17===0) status="exception";
+  if(i%23===0) status="anonymized";
+  orders.push({id:"ORD-"+String(1000+i), age, status, name:first[i%first.length]+" "+last[i%last.length]});
+}
+let cert=null;
+function hash(s){let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0).toString(16).padStart(8,"0");}
+function counts(){
+  return {
+    total: orders.length,
+    due: orders.filter(o=>o.status==="due").length,
+    anonymized: orders.filter(o=>o.status==="anonymized").length,
+    exception: orders.filter(o=>o.status==="exception").length,
+    active: orders.filter(o=>o.status==="active").length
+  };
+}
+function renderKPIs(){
+  const c=counts();
+  document.getElementById("kpis").innerHTML =
+    `<div class="kpi"><b>${c.total}</b>Synthetic orders</div><div class="kpi"><b>${c.due}</b>Due for deletion</div><div class="kpi"><b>${c.anonymized}</b>Anonymized</div><div class="kpi"><b>${c.exception}</b>Exception queue</div><div class="kpi"><b>${c.active}</b>Active</div>`;
+}
+function renderOrders(){
+  const f=document.getElementById("filter").value;
+  const rows=orders.filter(o=>f==="all"||o.status===f).slice(0,20);
+  document.getElementById("orders").innerHTML = rows.map(o=>
+    `<tr><td>${o.id}</td><td>${o.age}</td><td>${o.status}</td><td>${o.status==="anonymized" ? "ANONYMIZED" : o.name}</td></tr>`).join("");
+}
+function runSweep(){
+  let p=0; const bar=document.getElementById("sweepBar"); const st=document.getElementById("sweepStatus");
+  const t=setInterval(()=>{
+    p+=25; bar.style.width=p+"%";
+    if(p>=100){ clearInterval(t);
+      let n=0; orders.forEach(o=>{ if(o.status==="due"){o.status="anonymized"; o.name="ANONYMIZED"; n++;} });
+      const prev = cert ? cert.hash : "GENESIS";
+      const h = hash(prev + "|" + n + "|" + new Date().toISOString().slice(0,10));
+      cert={batch:"BATCH-"+Date.now(), count:n, prev, hash:h, tampered:false};
+      document.getElementById("cert").textContent = `Certificate ${cert.batch}: ${n} records anonymized. Previous hash ${prev}. Batch hash ${h}.`;
+      st.textContent = `Sweep complete: ${n} records anonymized.`;
+      renderKPIs(); renderOrders();
+    }
+  }, 250);
+}
+function verifyCert(){
+  document.getElementById("certCheck").textContent = !cert ? "No certificate yet." : cert.tampered ? "VERIFICATION FAILED: hash does not match. Treat this batch as untrusted." : "VERIFIED: hash chain matches.";
+  document.getElementById("certCheck").className = cert && cert.tampered ? "bad" : "ok";
+}
+function tamperCert(){ if(cert){cert.tampered=true; document.getElementById("certCheck").textContent="Tampering simulated: batch hash was changed."; document.getElementById("certCheck").className="bad";} }
+function testExport(){
+  const rows=+document.getElementById("rows").value, pii=document.getElementById("pii").checked, param=document.getElementById("param").checked;
+  const el=document.getElementById("exportResult");
+  if((rows>1000 && pii) || !param){ el.textContent="BLOCKED & ALERTED: bulk personal-data export, or a non-parameterized query, is not allowed for this role."; el.className="bad"; }
+  else { el.textContent="ALLOWED: limited, parameterized export with personal fields minimized."; el.className="ok"; }
+}
+let breachRows=[];
+function breachScope(){
+  breachRows = orders.filter(o=>o.age>200).slice(0,25).map(o=>({order:o.id, name:o.name, fields:"name, email, phone, shipping address, order number"}));
+  document.getElementById("breachOut").textContent =
+    `System: ${document.getElementById("system").value}\nDate range: ${document.getElementById("range").value}\nAffected synthetic customers in sample: ${breachRows.length}\nExposed fields: name, email, phone, shipping address, order number\n\nNotification draft:\n"We are writing to let you know that personal information associated with your order may have been accessed. We have revoked the affected access, completed a retention sweep, and are providing guidance on phishing and suspicious messages. This is a synthetic demo, not a real incident."`;
+}
+function downloadCSV(){
+  if(!breachRows.length) breachScope();
+  const csv="order,customer,fields\n"+breachRows.map(r=>`${r.order},${r.name},"${r.fields}"`).join("\n");
+  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="breach-scope-synthetic.csv"; a.click();
+}
+renderKPIs(); renderOrders();
+</script>
+</body>
+</html>
