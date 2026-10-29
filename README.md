@@ -7,10 +7,44 @@ protected from bulk export — before it can be stolen in a breach.
 **All data is synthetic and generated in the browser. No real personal
 data, no network calls, no exploit code, and no company is named.**
 
-## Open it
+## Run it in 10 seconds — no install
 
-Open `index.html` in a browser, or enable GitHub Pages for this repo
-(main branch, root folder). No build step, no dependencies.
+**Easiest, no download at all:** open the live demo, once GitHub
+Pages is turned on for this repo (see below):
+
+https://adityaaravind.github.io/retentionguard-dashboard/
+
+**Easiest, with a download:** download `index.html` from this repo
+and double-click it. That's it. No install, no build, no server,
+no dependencies — everything runs in your browser, and all data is
+synthetic.
+
+**Easiest, from a clone:**
+
+```bash
+git clone https://github.com/adityaaravind/retentionguard-dashboard.git
+cd retentionguard-dashboard
+python3 run.py
+```
+
+Or double-click `run.sh` (Mac/Linux) or `run.bat` (Windows) — both
+just open `index.html` in your browser.
+
+Want it served over HTTP instead? Run:
+
+```bash
+python3 run.py --serve
+```
+
+then open http://localhost:8000
+
+### Turn on the live demo (repo owner, one time)
+
+Repo > Settings > Pages > Build and deployment > Source:
+**GitHub Actions**. The workflow in `.github/workflows/static.yml`
+then deploys every push to `main` automatically. Until that setting
+is on, the live demo link above will show a 404 — use the
+download or clone options instead.
 
 ## What it does
 
