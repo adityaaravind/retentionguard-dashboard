@@ -69,16 +69,6 @@ the GitHub web UI, not through the automated push used here.
   generate the affected synthetic customers, the exposed fields,
   and a notification draft, with a CSV download.
 
-## LinkedIn title
-
-Recommended: **“The best data breach is the data that was already gone.”**
-
-Alternatives:
-
-- “I built RetentionGuard, a dashboard that makes data deletion provable, not just promised.”
-- “Your vendor said they deleted your customers' data. Can they prove it?”
-- “Retention is a security control, not a paperwork promise.”
-
 ## Safety and scope
 
 This is a defensive demo. Do not use it with real customer data,
