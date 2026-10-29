@@ -1,276 +1,449 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RetentionGuard — Data Lifecycle Guard Dashboard</title>
-<meta name="description" content="RetentionGuard is a generic, defensive dashboard that shows how third-party customer data should age out, be proven deleted, and be protected from bulk export. All data is synthetic.">
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="color-scheme" content="light dark"/>
+<link rel="icon" href="data:,"/>
+<title>RetentionGuard Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0b1220;--card:#162233;--card2:#0f172a;--line:#334155;--green:#4ade80;--red:#f87171;--yellow:#facc15;--blue:#60a5fa;--text:#e6edf3;--dim:#94a3b8}
-  *{box-sizing:border-box} html{scroll-behavior:smooth}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;line-height:1.5}
-  a{color:var(--green)}
-  nav{position:sticky;top:0;z-index:10;background:rgba(11,18,32,.95);border-bottom:1px solid var(--line);padding:12px 24px;display:flex;gap:18px;flex-wrap:wrap;align-items:center}
-  nav b{color:var(--green);font-size:18px} nav a{color:var(--dim);text-decoration:none;font-weight:600} nav a:hover{color:var(--text)}
-  .hero{max-width:1100px;margin:0 auto;padding:48px 24px 8px}
-  .hero h1{font-size:44px;line-height:1.1;margin:0 0 12px} .hero h1 span{color:var(--green)}
-  .hero p.lead{font-size:19px;color:#cbd5e1;max-width:820px}
-  .badges{display:flex;gap:8px;flex-wrap:wrap;margin:16px 0} .badge{border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;color:var(--dim);background:var(--card)}
-  main{max-width:1100px;margin:0 auto;padding:24px}
-  section{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;margin:0 0 20px}
-  section h2{margin-top:0} section h3{margin-bottom:6px}
-  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
-  .tool{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:16px}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-  .kpi{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:16px} .kpi b{font-size:30px;display:block} .kpi span{color:var(--dim);font-size:14px}
-  button{background:var(--green);color:#0b1220;border:0;border-radius:8px;padding:10px 16px;font-weight:700;cursor:pointer}
-  button.secondary{background:#334155;color:var(--text)} input,select{padding:8px;border-radius:6px;border:1px solid #475569;background:#0f172a;color:var(--text);margin:4px 0}
-  table{width:100%;border-collapse:collapse;font-size:14px} th,td{padding:9px;border-bottom:1px solid var(--line);text-align:left}
-  .ok{color:var(--green)} .bad{color:var(--red)} .warn{color:var(--yellow)}
-  .bar{height:16px;background:#0f172a;border-radius:8px;overflow:hidden} .bar i{display:block;height:100%;background:var(--green)}
-  pre{white-space:pre-wrap;background:#0f172a;padding:14px;border-radius:10px;border:1px solid var(--line)}
-  .steps{counter-reset:step} .steps li{margin:8px 0}
-  .charts{display:grid;grid-template-columns:1fr 1.4fr;gap:16px;margin-top:16px}
-  .chart-card{background:#0f172a;border:1px solid var(--line);border-radius:12px;padding:16px}
-  .chart-card h3{margin-top:0;font-size:16px}
-  .legend{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px;font-size:14px}
-  .legend span{display:flex;align-items:center;gap:8px} .swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0}
-  @media(max-width:760px){.charts{grid-template-columns:1fr}}
-  footer{max-width:1100px;margin:0 auto;padding:8px 24px 40px;color:var(--dim);font-size:14px}
-  @media(max-width:640px){.hero{padding:28px 16px} .hero h1{font-size:32px} main{padding:14px} section{padding:18px}}
+:root{
+  --bg:#f3f5f2; --panel:#ffffff; --panel2:#eef2ee; --ink:#17211b; --muted:#5d6d62; --line:#dce3dc;
+  --green:#0f7a4d; --green2:#0a5c3a; --teal:#0e7490; --amber:#b45309; --amberBg:#fef3c7; --red:#b42318; --redBg:#fef2f2; --okBg:#ecfdf5;
+  --radius:14px; --shadow:0 8px 30px rgba(20,40,30,.08);
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1512; --panel:#171f1a; --panel2:#1e2a22; --ink:#e8efe9; --muted:#9db0a3; --line:#2a3a2f; --amberBg:#3a2c0a; --redBg:#3a1512; --okBg:#0f2e20; --shadow:0 8px 30px rgba(0,0,0,.35); }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Public Sans",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
+a{color:var(--green)}
+button{font:inherit;cursor:pointer}
+.mono{font-family:"JetBrains Mono",monospace;font-size:.82em;word-break:break-all}
+.topbar{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);padding:14px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:12px;align-items:center}
+.mark{width:42px;height:42px;border-radius:10px;background:var(--green);color:#fff;display:grid;place-items:center;font-weight:800;font-size:20px}
+.brand h1{margin:0;font-size:20px;letter-spacing:-.02em}
+.brand p{margin:0;color:var(--muted);font-size:13px}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{border:1px solid var(--line);background:var(--panel2);padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700}
+.pill.live{color:var(--green);border-color:var(--green)}
+.layout{max-width:1280px;margin:0 auto;padding:18px;display:grid;grid-template-columns:210px 1fr;gap:18px}
+@media(max-width:860px){.layout{grid-template-columns:1fr}}
+nav.side{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;height:fit-content;position:sticky;top:84px}
+@media(max-width:860px){nav.side{position:static;display:flex;flex-wrap:wrap;gap:6px} nav.side a{white-space:nowrap} nav.side .note{flex-basis:100%}}
+nav.side a{display:block;padding:9px 10px;border-radius:8px;color:var(--ink);text-decoration:none;font-weight:600;font-size:14px}
+nav.side a:hover{background:var(--panel2)}
+nav.side .note{font-size:12px;color:var(--muted);padding:10px}
+main{display:flex;flex-direction:column;gap:18px;min-width:0}
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:1000px){.kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.kpis{grid-template-columns:1fr 1fr}}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.kpi small{color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:11px}
+.kpi b{display:block;font-size:28px;line-height:1.1;margin:6px 0 2px}
+.kpi span{font-size:13px;color:var(--muted)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.card h2{margin:0 0 4px;font-size:19px;letter-spacing:-.01em}
+.card h3{margin:18px 0 8px;font-size:15px}
+.sub{color:var(--muted);font-size:14px;margin:0 0 16px}
+.grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+.grid2eq{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:900px){.grid2,.grid2eq{grid-template-columns:1fr}}
+.btn{border:0;border-radius:10px;padding:11px 16px;font-weight:800;background:var(--green);color:#fff}
+.btn:hover{background:var(--green2)}
+.btn.secondary{background:var(--panel2);color:var(--ink);border:1px solid var(--line)}
+.btn.danger{background:var(--red)}
+.btn.small{padding:7px 11px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+label{font-weight:700;font-size:13px;display:block;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--ink);font:inherit}
+textarea{min-height:170px;resize:vertical}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.chip{border:1px solid var(--line);background:var(--panel);padding:7px 12px;border-radius:999px;font-weight:700;font-size:13px}
+.chip.active{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px;border-bottom:1px solid var(--line)}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+@media(max-width:700px){
+  table,thead,tbody,tr,td{display:block;width:100%}
+  thead{display:none}
+  tr{border:1px solid var(--line);border-radius:12px;margin-bottom:10px;padding:6px}
+  td{border:0;padding:6px 8px}
+  td::before{content:attr(data-l) " · ";font-weight:700;color:var(--muted);font-size:12px;text-transform:uppercase}
+}
+.tag{display:inline-block;padding:3px 8px;border-radius:999px;font-size:12px;font-weight:800}
+.tag.green{background:var(--okBg);color:var(--green)}
+.tag.amber{background:var(--amberBg);color:var(--amber)}
+.tag.red{background:var(--redBg);color:var(--red)}
+.tag.gray{background:var(--panel2);color:var(--muted)}
+.alert{border-radius:12px;padding:14px 16px;font-weight:600;margin-top:14px;display:none}
+.alert.show{display:block}
+.alert.block{background:var(--redBg);border:1px solid #f3b8b0;color:var(--red)}
+.alert.ok{background:var(--okBg);border:1px solid #8fd0ae;color:var(--green2)}
+@media(prefers-color-scheme:dark){.alert.ok{color:#7ee2b0}}
+.alert.warn{background:var(--amberBg);border:1px solid #e8c87a;color:var(--amber)}
+.cert{border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px;background:var(--panel2)}
+.cert-head{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+.log{background:#111a14;color:#c8e6d0;border-radius:12px;padding:14px;font-family:"JetBrains Mono",monospace;font-size:12.5px;min-height:150px;white-space:pre-wrap;word-break:break-word}
+@media(prefers-color-scheme:dark){.log{background:#0a0f0b}}
+.exc{border:1px solid var(--line);border-left:4px solid var(--amber);border-radius:10px;padding:12px;margin-bottom:10px}
+.exc b{display:block}
+.exc p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.fields{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.field{background:var(--redBg);color:var(--red);padding:5px 9px;border-radius:999px;font-size:12px;font-weight:800}
+.field.safe{background:var(--panel2);color:var(--muted)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:10px}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:5px}
+.progress{height:10px;background:var(--panel2);border-radius:999px;overflow:hidden;margin:10px 0}
+.progress i{display:block;height:100%;background:var(--green);width:0;transition:width .6s ease}
+.about-list{margin:0;padding-left:20px;color:var(--muted);font-size:14px}
+.about-list li{margin-bottom:6px}
+.about-list li b{color:var(--ink)}
+footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 30px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:999px;font-weight:700;z-index:50;display:none;box-shadow:var(--shadow)}
+.toast.show{display:block}
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
-<nav>
-  <b>RetentionGuard</b>
-  <a href="#what">What is this?</a><a href="#how">How to use it</a><a href="#vault">Order Vault</a><a href="#guard">Export Guard</a><a href="#breach">Breach Scope</a><a href="#about">About</a>
+<header class="topbar">
+  <div class="brand"><div class="mark">⛨</div><div><h1>RetentionGuard</h1><p>Third-party data lifecycle guard — order vault, deletion proof &amp; export controls</p></div></div>
+  <div class="pills"><span class="pill live">● Interactive demonstration</span><span class="pill">Synthetic data only</span><span class="pill">Retention window: 90 days</span><span class="pill">Reference date: 29 Oct 2026</span></div>
+</header>
+
+<div class="layout">
+<nav class="side" aria-label="Sections">
+  <a href="#overview">Overview</a><a href="#vault">Order Vault</a><a href="#proof">Deletion Proof</a><a href="#export">BI Export Guard</a><a href="#vendor">Vendor Attestation</a><a href="#breach">Breach Scope</a><a href="#about">About</a>
+  <p class="note">All names, emails and orders shown are synthetic and generated locally for demonstration purposes. No real personal data is used and no connection is made to external systems.</p>
 </nav>
 
-<div class="hero">
-  <h1>RetentionGuard<br><span>Data that should be gone, proven gone.</span></h1>
-  <p class="lead">RetentionGuard is a generic, defensive dashboard for third-party data handling. It shows how customer order data should age out after a retention window, how deletion can be proven instead of merely promised, and how bulk personal-data exports should be blocked before they leave a system.</p>
-  <div class="badges"><span class="badge">Synthetic data only</span><span class="badge">No backend required</span><span class="badge">No install</span><span class="badge">Runs entirely in your browser</span></div>
-  <p>If you opened this page without reading anything else, start here: this is a demonstration, not a real company's system. No real customer data is used, nothing is sent anywhere, and no account is changed by anything on this page.</p>
-</div>
-
 <main>
-  <section id="what">
-    <h2>What is this?</h2>
-    <p>When a company uses a third party to store, ship, or analyse orders, that third party often ends up holding customer names, emails, phone numbers, addresses, and order numbers long after the order is finished. If that data is kept indefinitely, a later breach exposes far more people than it should. If a vendor says “we deleted it” but cannot prove it, an auditor, a merchant, and a customer all have to take that on trust.</p>
-    <div class="grid3">
-      <div class="tool"><h3>1. Age it out</h3><p>Orders pass a 90-day retention window. After that, personal fields are anonymized, unless the order is in a visible returns/refunds exception queue.</p></div>
-      <div class="tool"><h3>2. Prove deletion</h3><p>Each sweep issues a deletion certificate linked by a hash chain. You can verify it, or simulate tampering and watch verification fail.</p></div>
-      <div class="tool"><h3>3. Guard exports</h3><p>Bulk personal-data exports, and non-parameterized queries, are blocked and alerted. Limited, parameterized exports are allowed.</p></div>
-      <div class="tool"><h3>4. Check vendors</h3><p>A vendor's deletion claim is checked against counts and sample records. A mismatch is flagged, not filed away.</p></div>
-      <div class="tool"><h3>5. Scope a breach fast</h3><p>Given a compromised system and date range, generate the affected synthetic customers, exposed fields, and a notification draft, instead of discovering the full scope weeks later.</p></div>
-      <div class="tool"><h3>6. Keep it auditable</h3><p>Every step above produces a record you can show: counts, certificates, blocked exports, and vendor checks, in one place.</p></div>
-    </div>
-  </section>
+<!-- KPIs -->
+<section class="kpis" id="overview" aria-label="Key figures">
+  <div class="kpi"><small>Orders in vault</small><b id="kTotal">—</b><span>Synthetic orders loaded</span></div>
+  <div class="kpi"><small>Within window</small><b id="kActive">—</b><span>PII retained lawfully</span></div>
+  <div class="kpi"><small>Past 90 days</small><b id="kEligible" style="color:var(--amber)">—</b><span>Eligible for sweep</span></div>
+  <div class="kpi"><small>Exceptions held</small><b id="kExc">—</b><span>Returns &amp; refunds only</span></div>
+  <div class="kpi"><small>PII anonymised</small><b id="kAnon" style="color:var(--green)">—</b><span>With certificate proof</span></div>
+</section>
 
-  <section id="how">
-    <h2>How to use it — in 2 minutes</h2>
-    <ol class="steps">
-      <li><b>Look at the Overview</b> below: how many synthetic orders are active, due for deletion, anonymized, or held as exceptions.</li>
-      <li><b>Click “Run retention sweep”</b> in the Order Vault. Watch due orders become anonymized and a deletion certificate appear.</li>
-      <li><b>Click “Verify certificate”, then “Simulate tampering”</b> to see why a hash chain matters.</li>
-      <li><b>Try the BI Export Guard</b> with the default 5,000-row, full personal-data query. It should be blocked. Then lower the rows, remove personal data, and tick “Parameterized query” to see an allowed export.</li>
-      <li><b>Check Vendor attestation</b>, then <b>Generate a breach-scope list</b> and download the synthetic CSV.</li>
-    </ol>
-    <p>No sign-in, no setup, and no data leaves your browser. Refreshing the page resets the demo to its starting state.</p>
-  </section>
-
-  <section>
-    <h2>Overview</h2>
-    <div class="kpis" id="kpis"></div>
-    <p>Retention window: <b>90 days</b>. After that window, personal fields are anonymized or deleted, unless the order is in the returns/refunds exception queue.</p>
-    <p style="color:var(--dim)">Both charts below use the same live counts as the KPI cards above, and update when you run a retention sweep.</p>
-    <div class="charts">
-      <div class="chart-card">
-        <h3>Order status — share</h3>
-        <canvas id="donut" width="360" height="360" style="width:100%;height:auto"></canvas>
-        <div class="legend" id="donutLegend"></div>
-      </div>
-      <div class="chart-card">
-        <h3>Order status — count</h3>
-        <canvas id="chart" width="640" height="360" style="width:100%;height:auto"></canvas>
+<!-- Charts -->
+<section class="card">
+  <h2>Where the personal data actually is</h2>
+  <p class="sub">If data past its window is still sitting in the vault with names and addresses attached, that is exposure — not storage. Run a sweep below and watch the eligible slice move.</p>
+  <div class="grid2">
+    <div>
+      <h3 style="margin-top:0">Vault composition</h3>
+      <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap">
+        <svg id="donut" width="170" height="170" viewBox="0 0 170 170" role="img" aria-label="Donut chart of vault composition"></svg>
+        <div id="donutLegend"></div>
       </div>
     </div>
-  </section>
+    <div>
+      <h3 style="margin-top:0">Orders by age (days since order)</h3>
+      <svg id="bars" width="100%" height="190" viewBox="0 0 520 190" role="img" aria-label="Bar chart of orders by age bucket"></svg>
+      <p class="sub" style="margin:6px 0 0">Everything in the 91+ day buckets should already be anonymised — unless it is in the exception queue for a documented reason.</p>
+    </div>
+  </div>
+</section>
 
-  <section id="vault">
-    <h2>Order Vault</h2>
-    <p>120 synthetic orders. Use the filter to see active, due, anonymized, and exception orders. Click the sweep button to anonymize due orders and issue a certificate.</p>
-    <button onclick="runSweep()">Run retention sweep</button>
-    <span id="sweepStatus"></span>
-    <div class="bar" style="margin-top:12px"><i id="sweepBar" style="width:0%"></i></div>
-    <p><label>Filter: <select id="filter" onchange="renderOrders()"><option value="all">All</option><option value="active">Active</option><option value="due">Due for deletion</option><option value="anonymized">Anonymized</option><option value="exception">Exception queue</option></select></label></p>
-    <table><thead><tr><th>Order</th><th>Age (days)</th><th>Status</th><th>Customer (synthetic)</th></tr></thead><tbody id="orders"></tbody></table>
-    <p style="color:var(--dim)">Showing the first 20 matching orders.</p>
-  </section>
+<!-- VAULT -->
+<section class="card" id="vault">
+  <h2>1 · Order Vault — 90-day retention</h2>
+  <p class="sub">Personal fields (name, email, phone, street address) are kept for 90 days, then anonymised. Non-personal facts — order total, SKU count, city-level region — are kept for accounting. Returns and refunds are held in the open, in an exception queue with an expiry, never as a silent loophole.</p>
+  <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:6px">
+    <button class="btn" id="sweepBtn">▶ Run retention sweep</button>
+    <button class="btn secondary" id="resetBtn">Reset demo data</button>
+    <span id="sweepStatus" style="font-weight:700;color:var(--muted)"></span>
+  </div>
+  <div class="progress" aria-hidden="true"><i id="sweepBar"></i></div>
+  <div class="grid2">
+    <div>
+      <div class="filters" role="group" aria-label="Filter orders">
+        <button class="chip active" data-f="all">All</button><button class="chip" data-f="eligible">Past window</button><button class="chip" data-f="exception">Exceptions</button><button class="chip" data-f="anonymised">Anonymised</button><button class="chip" data-f="active">Within window</button>
+      </div>
+      <div style="overflow:auto"><table><thead><tr><th>Order</th><th>Customer (PII)</th><th>Age</th><th>Total</th><th>Status</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+      <p class="sub" id="orderCount" style="margin-top:8px"></p>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Exception queue — visible, expiring</h3>
+      <div id="excList"></div>
+      <p class="sub">Rule: an exception needs a reason, an owner, and a hold-until date. When the hold expires, the record joins the next sweep automatically.</p>
+    </div>
+  </div>
+</section>
 
-  <section>
-    <h2>Deletion certificate</h2>
-    <p id="cert">No sweep run yet. Run a sweep to issue a certificate.</p>
-    <button class="secondary" onclick="verifyCert()">Verify certificate</button>
-    <button class="secondary" onclick="tamperCert()">Simulate tampering</button>
-    <p id="certCheck"></p>
-  </section>
+<!-- PROOF -->
+<section class="card" id="proof">
+  <h2>2 · Deletion Proof — tamper-evident certificates</h2>
+  <p class="sub">Every sweep creates a batch certificate. Each certificate contains the previous batch's hash, so deleting or editing an old batch breaks the chain — and the Verify button below will catch it. Try it: tamper with a certificate, then verify.</p>
+  <div id="certList"></div>
+  <div class="alert" id="verifyAlert" role="status"></div>
+</section>
 
-  <section id="guard">
-    <h2>BI Export Guard</h2>
-    <p>Analysts and reporting tools are a common way personal data leaves a system in bulk. This guard checks three things before an export is allowed: how many rows, whether full personal data is included, and whether the query is parameterized.</p>
-    <label>Rows: <input id="rows" type="number" value="5000"></label>
-    <label><input id="pii" type="checkbox" checked> Full personal data</label>
-    <label><input id="param" type="checkbox"> Parameterized query</label>
-    <button onclick="testExport()">Test this export</button>
-    <p id="exportResult"></p>
-  </section>
+<!-- EXPORT GUARD -->
+<section class="card" id="export">
+  <h2>3 · BI Export Guard — least privilege, or it doesn't run</h2>
+  <p class="sub">Analysts never touch the raw database. Queries must be parameterized, roles are least-privilege, and any bulk export containing personal data is alerted on and blocked — the pattern behind most “the BI tool did it” breaches.</p>
+  <div class="grid2eq">
+    <div>
+      <label for="roleSel">Your role</label>
+      <select id="roleSel"><option value="analyst">BI Analyst — least privilege (aggregates only)</option><option value="manager">Support Manager — masked PII, capped rows</option><option value="admin">Data Admin — full access, all actions logged</option></select>
+      <label for="rowsRange">Rows requested: <span id="rowsVal">5,000</span></label>
+      <input type="range" id="rowsRange" min="10" max="10000" step="10" value="5000">
+      <label for="querySel">Query</label>
+      <select id="querySel">
+        <option value="agg">Daily order totals by region (aggregated, no PII)</option>
+        <option value="masked">Customer list — masked emails, max 500 rows</option>
+        <option value="bulk" selected>Full customer export — name, email, phone, address</option>
+        <option value="raw">Ad-hoc SQL with typed-in customer email (not parameterized)</option>
+      </select>
+      <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="exportBtn">Test this export</button><button class="btn secondary" id="exportSafeBtn">Try a safe export instead</button></div>
+      <div class="alert" id="exportAlert" role="alert"></div>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Guard log</h3>
+      <div class="log" id="exportLog">guard ready · policy: block bulk PII &gt; 100 rows · parameterized queries only · bulk threshold = 100 rows
+</div>
+      <p class="sub" style="margin-top:10px">Policy in plain English: over 100 rows of personal data = blocked for everyone except a logged Data Admin job; a non-parameterized query = blocked for everyone, no exceptions.</p>
+    </div>
+  </div>
+</section>
 
-  <section>
-    <h2>Vendor attestation</h2>
-    <table><thead><tr><th>Vendor</th><th>Claim</th><th>Found remaining</th><th>Result</th></tr></thead>
-    <tbody><tr><td>HarborLine</td><td>All deleted</td><td>253</td><td class="bad">MISMATCH - follow up required</td></tr>
-    <tr><td>NorthPost Logistics</td><td>All deleted</td><td>0</td><td class="ok">Verified</td></tr>
-    <tr><td>ParcelBridge</td><td>All deleted</td><td>0</td><td class="ok">Verified</td></tr></tbody></table>
-    <p>A vendor claim is not filed away here. It is checked against counts and sample records, and a mismatch is flagged.</p>
-  </section>
+<!-- VENDOR -->
+<section class="card" id="vendor">
+  <h2>4 · Vendor Attestation Checker — “we deleted it” gets checked</h2>
+  <p class="sub">A vendor sends a deletion attestation. RetentionGuard doesn't file it — it recounts the vendor's sample extract and flags any mismatch between the claim and reality.</p>
+  <div class="grid2eq">
+    <div>
+      <label for="vendorSel">Vendor</label>
+      <select id="vendorSel"><option value="north">NorthPeak Fulfilment (synthetic)</option><option value="harbor">HarborLine Logistics (synthetic)</option><option value="clear">ClearPost 3PL (synthetic)</option></select>
+      <label for="claimInput">Vendor claims this many records deleted</label>
+      <input type="number" id="claimInput" value="1200">
+      <label for="periodSel">Attestation period</label>
+      <select id="periodSel"><option>Q3 2026 — orders older than 90 days</option><option>Q2 2026 — orders older than 90 days</option></select>
+      <div style="margin-top:16px"><button class="btn" id="attestBtn">Check attestation against actuals</button></div>
+      <div class="alert" id="attestAlert" role="alert"></div>
+    </div>
+    <div>
+      <h3 style="margin-top:0">What the check actually found</h3>
+      <div id="attestResult"><p class="sub">Run the check to see the recount, plus sample records that should have been deleted but weren't.</p></div>
+    </div>
+  </div>
+</section>
 
-  <section id="breach">
-    <h2>Breach scope</h2>
-    <p>When an incident is discovered, the first question is usually “how many people, and what fields?” This tool answers that from the synthetic sample in seconds, and drafts the notification text, instead of letting the scope grow over successive updates.</p>
-    <label>Compromised system: <select id="system"><option>BI reporting tool</option><option>Order export service</option><option>Vendor portal</option></select></label>
-    <label>Date range: <input id="range" value="2019-11-01 to 2021-08-31"></label>
-    <button onclick="breachScope()">Generate breach-scope list</button>
-    <pre id="breachOut">No scope generated yet.</pre>
-    <button class="secondary" onclick="downloadCSV()">Download CSV (synthetic)</button>
-  </section>
+<!-- BREACH -->
+<section class="card" id="breach">
+  <h2>5 · Breach-Scope Tool — from “we think…” to a list, instantly</h2>
+  <p class="sub">Pick the compromised system and the window. You get the affected synthetic customers, exactly which fields were exposed, and a notification draft you can copy or download. No guessing, no month-later correction.</p>
+  <div class="grid2eq">
+    <div>
+      <label for="sysSel">Compromised system</label>
+      <select id="sysSel"><option value="vault">Order Vault</option><option value="bi">BI Warehouse</option><option value="vendor">Vendor Portal</option><option value="email">Email Archive</option></select>
+      <label for="dFrom">From</label><input type="date" id="dFrom" value="2026-06-01">
+      <label for="dTo">To</label><input type="date" id="dTo" value="2026-08-31">
+      <div style="margin-top:16px"><button class="btn danger" id="breachBtn">Generate breach-scope list</button></div>
+      <div id="breachSummary" style="margin-top:14px"></div>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Fields exposed</h3>
+      <div class="fields" id="fieldChips"><span class="sub">Generate a scope list to see fields.</span></div>
+      <h3>Affected customers (sample)</h3>
+      <div id="breachTable"><p class="sub">No scope generated yet.</p></div>
+    </div>
+  </div>
+  <h3>Notification draft</h3>
+  <textarea id="notifDraft" placeholder="Your draft will appear here after you generate a scope list…"></textarea>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button class="btn secondary small" id="copyNotif">Copy draft</button><button class="btn secondary small" id="dlNotif">Download draft (.txt)</button><button class="btn secondary small" id="dlCsv">Download affected list (.csv)</button></div>
+</section>
 
-  <section id="about">
-    <h2>About this project</h2>
-    <h3>Scope</h3>
-    <p>RetentionGuard is a front-end demonstration of data-lifecycle controls for third-party order handling: retention windows, deletion proof, export guarding, vendor attestation checks, and breach scoping. It is intentionally generic and does not name, target, or connect to any real company or vendor.</p>
-    <h3>Methodology</h3>
-    <p>All 120 orders are generated in the browser from a small synthetic name list. Ages and statuses are assigned by rule, not taken from real records. The retention sweep, certificate hash, export guard, and breach-scope list all operate only on that synthetic sample.</p>
-    <h3>Limitations</h3>
-    <p>This is a demonstration, not a production compliance system. The certificate hash is a simple illustrative hash, not a production cryptographic proof. The export guard, vendor checks, and breach-scope tool do not connect to real databases, identity providers, or vendor systems. Do not use this page with real customer data, and do not present synthetic numbers as real incident numbers.</p>
-    <h3>Who this is for</h3>
-    <p>IT support and operations teams who own vendor and data-handling workflows, security and compliance reviewers who need to see deletion evidence, and anyone evaluating how retention, export controls, and breach scoping should work together in one place.</p>
-  </section>
+<!-- ABOUT -->
+<section class="card" id="about">
+  <h2>About this project</h2>
+  <p class="sub">RetentionGuard is a reference implementation for third-party data lifecycle management. It demonstrates how a defined retention period can be enforced, evidenced, and audited — rather than relied upon as a policy statement alone.</p>
+  <div class="grid2eq">
+    <div>
+      <h3 style="margin-top:0">Scope</h3>
+      <ul class="about-list">
+        <li><b>Retention enforcement</b> — time-bound anonymisation of personal fields after 90 days, with a documented exception process for returns and refunds.</li>
+        <li><b>Deletion evidence</b> — hash-chained batch certificates that allow deletion events to be verified and tampering to be detected.</li>
+        <li><b>Access controls</b> — least-privilege, parameterized access to reporting data, with bulk personal-data exports blocked and logged.</li>
+        <li><b>Vendor oversight</b> — independent verification of third-party deletion attestations against sampled records.</li>
+        <li><b>Incident scoping</b> — rapid identification of affected records and exposed fields to support accurate notification.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-top:0">Methodology &amp; limitations</h3>
+      <ul class="about-list">
+        <li>All data in this demonstration is synthetic and generated locally in the browser. No real personal data is used.</li>
+        <li>This is a client-side demonstration. A production implementation would require server-side scheduling, immutable (WORM) audit storage, identity-provider integration, and formal data-processing agreements with each vendor.</li>
+        <li>Retention periods should be set with legal and operational requirements for the relevant jurisdiction and data category, not adopted solely from this example.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<footer>RetentionGuard · Synthetic-data demonstration · No real personal data is used and no connection is made to any live system.</footer>
 </main>
-<footer>
-  RetentionGuard — synthetic demo only. No real personal data, no network calls, no exploit code. MIT License, see the repository for details.
-</footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
 <script>
-const first=["Alex","Priya","Jordan","Sam","Maria","Chris","Aisha","Tom","Nina","David"];
-const last=["Patel","Garcia","Kim","Nguyen","Smith","Ali","Brown","Lopez"];
-let orders=[];
-for(let i=1;i<=120;i++){
-  const age = i<=40 ? Math.floor(Math.random()*80)+1 : i<=90 ? Math.floor(Math.random()*60)+85 : Math.floor(Math.random()*400)+200;
-  let status = age>90 ? "due" : "active";
-  if(i%17===0) status="exception";
-  if(i%23===0) status="anonymized";
-  orders.push({id:"ORD-"+String(1000+i), age, status, name:first[i%first.length]+" "+last[i%last.length]});
+(function(){
+"use strict";
+var REF = new Date("2026-10-29T12:00:00");
+var first=["Avery","Jordan","Maya","Liam","Priya","Noah","Sofia","Ethan","Zara","Lucas","Nina","Omar","Ivy","Felix","Rosa","Kenji"];
+var last=["Sharma","Patel","Nguyen","Garcia","Kim","Haddad","Novak","Singh","Murphy","Tanaka","Ali","Brooks","Costa","Weber","Rao","Larsen"];
+var cities=["Austin, TX","Denver, CO","Chicago, IL","Seattle, WA","Miami, FL","Portland, OR","Phoenix, AZ","Boston, MA"];
+var reasons=[["Return in transit","Returns desk"],["Refund under review","Support — refunds"],["Chargeback evidence hold","Finance"],["Return window extended by support","Support — returns"]];
+var seed=42; function rnd(){seed=(seed*1664525+1013904223)>>>0;return seed/4294967296;}
+function pick(a){return a[Math.floor(rnd()*a.length)];}
+function hash(str){var h1=0xdeadbeef,h2=0x41c6ce57;for(var i=0;i<str.length;i++){var c=str.charCodeAt(i);h1=Math.imul(h1^c,2654435761);h2=Math.imul(h2^c,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909);return (h2>>>0).toString(16).padStart(8,"0")+(h1>>>0).toString(16).padStart(8,"0");}
+function fullHash(s){return hash(s)+hash(s+"a")+hash(s+"b")+hash(s+"c");}
+var orders=[], certs=[], batchN=3;
+function genData(){
+  seed=42; orders=[]; certs=[]; batchN=3;
+  for(var i=0;i<120;i++){
+    var ageDays=Math.floor(rnd()*185);
+    var d=new Date(REF.getTime()-ageDays*86400000);
+    var fn=pick(first), ln=pick(last);
+    var exc = ageDays>90 && rnd()<0.22;
+    var anon = ageDays>90 && !exc && rnd()<0.45;
+    var r = exc? pick(reasons):null;
+    orders.push({id:"ORD-"+(4100+i), name:fn+" "+ln, email:(fn+"."+ln+"@example.test").toLowerCase(), phone:"+1 555-01"+String(10+i%89), addr:(100+i*3)+" Synthetic St, "+pick(cities), city:pick(cities), total:(24+rnd()*280).toFixed(2), date:d, age:ageDays, status: anon?"anonymised":(exc?"exception":(ageDays>90?"eligible":"active")), reason:r?r[0]:null, owner:r?r[1]:null, hold:r? Math.floor(rnd()*18)+4:null});
+  }
+  // seed certificates for already-anonymised
+  var anonCount=orders.filter(function(o){return o.status==="anonymised";}).length;
+  var prev="GENESIS-0000000000000000";
+  [["BATCH-001",Math.floor(anonCount*0.4),"2026-09-18"],["BATCH-002",anonCount-Math.floor(anonCount*0.4),"2026-10-12"]].forEach(function(b){
+    var h=fullHash(b[0]+b[1]+prev);
+    certs.push({id:b[0],count:b[1],date:b[2],hash:h,prev:prev,tampered:false});
+    prev=h;
+  });
 }
-let cert=null;
-function hash(s){let h=2166136261; for(let i=0;i<s.length;i++){h^=s.charCodeAt(i); h=Math.imul(h,16777619);} return (h>>>0).toString(16).padStart(8,"0");}
-function counts(){
-  return {
-    total: orders.length,
-    due: orders.filter(o=>o.status==="due").length,
-    anonymized: orders.filter(o=>o.status==="anonymized").length,
-    exception: orders.filter(o=>o.status==="exception").length,
-    active: orders.filter(o=>o.status==="active").length
-  };
-}
-function statusItems(){
-  const c=counts();
-  return [["Active",c.active,"#4ade80"],["Due for deletion",c.due,"#f87171"],["Anonymized",c.anonymized,"#60a5fa"],["Exception queue",c.exception,"#facc15"]];
-}
+function $(id){return document.getElementById(id);}
+function toast(m){var t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show");},2200);}
+function counts(){var c={total:orders.length,active:0,eligible:0,exception:0,anonymised:0};orders.forEach(function(o){c[o.status]++;});return c;}
+function renderKPIs(){var c=counts();$("kTotal").textContent=c.total;$("kActive").textContent=c.active;$("kEligible").textContent=c.eligible;$("kExc").textContent=c.exception;$("kAnon").textContent=c.anonymised;}
 function renderDonut(){
-  const canvas=document.getElementById("donut"); if(!canvas) return;
-  const ctx=canvas.getContext("2d"); ctx.clearRect(0,0,canvas.width,canvas.height);
-  const items=statusItems(); const total=Math.max(items.reduce((s,x)=>s+x[1],0),1);
-  let angle=-Math.PI/2; const cx=180, cy=170, r=120, inner=68;
-  items.forEach(item=>{
-    const slice=(item[1]/total)*Math.PI*2;
-    if(item[1]===0) return;
-    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,r,angle,angle+slice); ctx.closePath();
-    ctx.fillStyle=item[2]; ctx.fill(); angle+=slice;
-  });
-  ctx.beginPath(); ctx.arc(cx,cy,inner,0,Math.PI*2); ctx.fillStyle="#0f172a"; ctx.fill();
-  ctx.fillStyle="#e6edf3"; ctx.font="bold 28px sans-serif"; ctx.textAlign="center";
-  ctx.fillText(String(total), cx, cy+4);
-  ctx.fillStyle="#94a3b8"; ctx.font="13px sans-serif"; ctx.fillText("synthetic orders", cx, cy+24);
-  ctx.textAlign="left";
-  document.getElementById("donutLegend").innerHTML = items.map(item=>
-    `<span><i class="swatch" style="background:${item[2]}"></i>${item[0]}: ${item[1]} (${Math.round(item[1]/total*100)}%)</span>`).join("");
+  var c=counts();var segs=[[c.active,"#0f7a4d","Within window"],[c.eligible,"#b45309","Past window — eligible"],[c.exception,"#0e7490","Exceptions held"],[c.anonymised,"#9db0a3","Anonymised"]];
+  var total=c.total||1, r=62, circ=2*Math.PI*r, off=0, svg='<circle cx="85" cy="85" r="'+r+'" fill="none" stroke="var(--panel2)" stroke-width="22"/>';
+  segs.forEach(function(s){if(!s[0])return;var len=s[0]/total*circ;svg+='<circle cx="85" cy="85" r="'+r+'" fill="none" stroke="'+s[1]+'" stroke-width="22" stroke-dasharray="'+Math.max(len-2,0)+' '+circ+'" stroke-dashoffset="'+(-off)+'" transform="rotate(-90 85 85)"/>';off+=len;});
+  svg+='<text x="85" y="82" text-anchor="middle" font-size="22" font-weight="800" fill="var(--ink)">'+total+'</text><text x="85" y="102" text-anchor="middle" font-size="11" fill="var(--muted)">orders</text>';
+  $("donut").innerHTML=svg;
+  $("donutLegend").innerHTML=segs.map(function(s){return '<div><span class="dot" style="background:'+s[1]+'"></span>'+s[2]+' — <b>'+s[0]+'</b></div>';}).join("");
+  // bars
+  var buckets=[0,0,0,0,0,0]; orders.forEach(function(o){buckets[Math.min(Math.floor(o.age/31),5)]++;});
+  var labels=["0–30d","31–60d","61–90d","91–120d","121–150d","151d+"], max=Math.max.apply(null,buckets.concat([1]));
+  var bars=""; buckets.forEach(function(v,i){var h=v/max*120;var x=18+i*84;var col=i>=3?"#b45309":"#0f7a4d";bars+='<rect x="'+x+'" y="'+(140-h)+'" width="52" height="'+h+'" rx="6" fill="'+col+'"/><text x="'+(x+26)+'" y="'+(132-h)+'" text-anchor="middle" font-size="13" font-weight="700" fill="var(--ink)">'+v+'</text><text x="'+(x+26)+'" y="162" text-anchor="middle" font-size="11" fill="var(--muted)">'+labels[i]+'</text>';});
+  bars+='<line x1="10" y1="140" x2="510" y2="140" stroke="var(--line)"/>';
+  $("bars").innerHTML=bars;
 }
-function renderChart(){
-  const canvas=document.getElementById("chart"); if(!canvas) return;
-  const ctx=canvas.getContext("2d"); ctx.clearRect(0,0,canvas.width,canvas.height);
-  const items=statusItems();
-  const max=Math.max(...items.map(x=>x[1]),1);
-  ctx.strokeStyle="#1e293b"; ctx.fillStyle="#94a3b8"; ctx.font="12px sans-serif";
-  for(let g=0; g<=4; g++){ const y=30+g*60; ctx.beginPath(); ctx.moveTo(50,y); ctx.lineTo(620,y); ctx.stroke(); ctx.fillText(String(Math.round(max*(4-g)/4)), 20, y+4); }
-  items.forEach((item,i)=>{
-    const x=80+i*145, h=Math.round((item[1]/max)*240), y=270-h;
-    ctx.fillStyle=item[2]; ctx.fillRect(x,y,80,h);
-    ctx.fillStyle="#e6edf3"; ctx.font="bold 16px sans-serif"; ctx.textAlign="center"; ctx.fillText(String(item[1]), x+40, y-8);
-    ctx.fillStyle="#94a3b8"; ctx.font="13px sans-serif";
-    const words=item[0].split(" "); words.forEach((w,j)=>ctx.fillText(w, x+40, 292+j*16));
-    ctx.textAlign="left";
-  });
-}
-function renderKPIs(){
-  const c=counts();
-  document.getElementById("kpis").innerHTML =
-    `<div class="kpi"><b>${c.total}</b><span>Synthetic orders</span></div><div class="kpi"><b>${c.due}</b><span>Due for deletion</span></div><div class="kpi"><b>${c.anonymized}</b><span>Anonymized</span></div><div class="kpi"><b>${c.exception}</b><span>Exception queue</span></div><div class="kpi"><b>${c.active}</b><span>Active</span></div>`;
-  renderChart(); renderDonut();
-}
+var filter="all";
+function statusTag(o){if(o.status==="active")return '<span class="tag green">Within window</span>';if(o.status==="eligible")return '<span class="tag amber">Past 90d — eligible</span>';if(o.status==="exception")return '<span class="tag" style="background:var(--panel2);color:var(--teal)">Exception hold</span>';return '<span class="tag gray">Anonymised</span>';}
 function renderOrders(){
-  const f=document.getElementById("filter").value;
-  const rows=orders.filter(o=>f==="all"||o.status===f).slice(0,20);
-  document.getElementById("orders").innerHTML = rows.map(o=>
-    `<tr><td>${o.id}</td><td>${o.age}</td><td>${o.status}</td><td>${o.status==="anonymized" ? "ANONYMIZED" : o.name}</td></tr>`).join("");
+  var list=orders.filter(function(o){return filter==="all"||o.status===filter;});
+  var show=list.slice(0,10);
+  $("orderRows").innerHTML=show.map(function(o){
+    var pii=o.status==="anonymised"?'<span class="mono">anon_'+hash(o.id).slice(0,6)+' · email removed · phone removed</span>':("<b>"+o.name+"</b><br><span class='mono'>"+o.email+"<br>"+o.phone+"</span>");
+    return "<tr><td data-l='Order'><b>"+o.id+"</b><br><span style='color:var(--muted)'>"+o.date.toISOString().slice(0,10)+"</span></td><td data-l='Customer'>"+pii+"</td><td data-l='Age'>"+o.age+"d</td><td data-l='Total'>$"+o.total+"</td><td data-l='Status'>"+statusTag(o)+"</td></tr>";
+  }).join("")||"<tr><td>No orders in this view.</td></tr>";
+  $("orderCount").textContent="Showing "+show.length+" of "+list.length+" in this view · "+orders.length+" total. Anonymised rows keep only order total, item count and region.";
+  $("excList").innerHTML=orders.filter(function(o){return o.status==="exception";}).slice(0,5).map(function(o){return '<div class="exc"><b>'+o.id+' — '+o.reason+'</b><p>Owner: '+o.owner+' · Hold expires in '+o.hold+' days · PII retained only for this case, then auto-swept.</p></div>';}).join("")||'<p class="sub">Queue empty.</p>';
 }
-function runSweep(){
-  let p=0; const bar=document.getElementById("sweepBar"); const st=document.getElementById("sweepStatus");
-  const t=setInterval(()=>{
-    p+=25; bar.style.width=p+"%";
-    if(p>=100){ clearInterval(t);
-      let n=0; orders.forEach(o=>{ if(o.status==="due"){o.status="anonymized"; o.name="ANONYMIZED"; n++;} });
-      const prev = cert ? cert.hash : "GENESIS";
-      const h = hash(prev + "|" + n + "|" + new Date().toISOString().slice(0,10));
-      cert={batch:"BATCH-"+Date.now(), count:n, prev, hash:h, tampered:false};
-      document.getElementById("cert").textContent = `Certificate ${cert.batch}: ${n} records anonymized. Previous hash ${prev}. Batch hash ${h}.`;
-      st.textContent = `Sweep complete: ${n} records anonymized.`;
-      renderKPIs(); renderOrders();
-    }
-  }, 250);
+function renderCerts(){
+  $("certList").innerHTML=certs.map(function(c,i){
+    return '<div class="cert"><div class="cert-head"><b>'+c.id+' — '+c.count+' records anonymised</b><span class="tag '+(c.tampered?'red':'green')+'">'+(c.tampered?'TAMPERED':'Sealed')+'</span></div><p style="margin:8px 0 4px">Issued: '+c.date+' · Method: field-level anonymisation (name/email/phone/street address)</p><p class="mono" style="margin:2px 0">hash: '+(c.tampered? c.hash.slice(0,20)+"XXXX-tampered":c.hash)+'<br>prev: '+c.prev+'</p><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn small secondary" data-verify="'+i+'">Verify chain</button><button class="btn small secondary" data-tamper="'+i+'">Simulate tampering</button></div></div>';
+  }).join("");
+  document.querySelectorAll("[data-verify]").forEach(function(b){b.addEventListener("click",function(){verifyChain(parseInt(b.getAttribute("data-verify"),10));});});
+  document.querySelectorAll("[data-tamper]").forEach(function(b){b.addEventListener("click",function(){var c=certs[parseInt(b.getAttribute("data-tamper"),10)];c.tampered=true;renderCerts();showAlert("verifyAlert","warn","⚠ "+c.id+" was altered in this demo. Now press Verify chain — the mismatch should be caught.");});});
 }
-function verifyCert(){
-  document.getElementById("certCheck").textContent = !cert ? "No certificate yet." : cert.tampered ? "VERIFICATION FAILED: hash does not match. Treat this batch as untrusted." : "VERIFIED: hash chain matches.";
-  document.getElementById("certCheck").className = cert && cert.tampered ? "bad" : "ok";
+function showAlert(id,kind,msg){var a=$(id);a.className="alert show "+kind;a.innerHTML=msg;}
+function verifyChain(idx){
+  var bad=certs.findIndex(function(c){return c.tampered;});
+  // also check linkage
+  var linkBad=-1; for(var i=1;i<certs.length;i++){if(certs[i].prev!==certs[i-1].hash){linkBad=i;break;}}
+  if(bad>-1){showAlert("verifyAlert","block","✕ CHAIN BROKEN — "+certs[bad].id+" does not match its recorded hash. This certificate cannot be trusted and the batch must be re-audited.");}
+  else if(linkBad>-1){showAlert("verifyAlert","block","✕ CHAIN BROKEN — "+certs[linkBad].id+" does not link to the previous batch hash.");}
+  else{showAlert("verifyAlert","ok","✓ Chain intact — "+certs.length+" batch certificates verified in order, each linking to the previous hash. Deletion proof holds.");}
 }
-function tamperCert(){ if(cert){cert.tampered=true; document.getElementById("certCheck").textContent="Tampering simulated: batch hash was changed."; document.getElementById("certCheck").className="bad";} }
-function testExport(){
-  const rows=+document.getElementById("rows").value, pii=document.getElementById("pii").checked, param=document.getElementById("param").checked;
-  const el=document.getElementById("exportResult");
-  if((rows>1000 && pii) || !param){ el.textContent="BLOCKED & ALERTED: bulk personal-data export, or a non-parameterized query, is not allowed for this role."; el.className="bad"; }
-  else { el.textContent="ALLOWED: limited, parameterized export with personal fields minimized."; el.className="ok"; }
+function renderAll(){renderKPIs();renderDonut();renderOrders();renderCerts();}
+
+$("sweepBtn").addEventListener("click",function(){
+  var elig=orders.filter(function(o){return o.status==="eligible";});
+  if(!elig.length){$("sweepStatus").textContent="Nothing eligible — vault is clean.";toast("Nothing to sweep");return;}
+  this.disabled=true;var btn=this;$("sweepBar").style.width="65%";$("sweepStatus").textContent="Sweeping "+elig.length+" records…";
+  setTimeout(function(){
+    elig.forEach(function(o){o.status="anonymised";});
+    var prev=certs.length?certs[certs.length-1].hash:"GENESIS-0000000000000000";
+    var id="BATCH-00"+(batchN++);
+    certs.push({id:id,count:elig.length,date:"2026-10-29",hash:fullHash(id+elig.length+prev),prev:prev,tampered:false});
+    $("sweepBar").style.width="100%";$("sweepStatus").textContent="Done — "+elig.length+" anonymised, certificate "+id+" issued.";
+    renderAll(); setTimeout(function(){$("sweepBar").style.width="0";},900); btn.disabled=false; toast("Sweep complete · "+id+" sealed");
+    document.getElementById("proof").scrollIntoView({behavior:"smooth",block:"start"});
+  },700);
+});
+$("resetBtn").addEventListener("click",function(){genData();renderAll();$("sweepStatus").textContent="Demo data reset.";toast("Demo reset");});
+document.querySelectorAll(".chip").forEach(function(ch){ch.addEventListener("click",function(){document.querySelectorAll(".chip").forEach(function(x){x.classList.remove("active");});ch.classList.add("active");filter=ch.getAttribute("data-f");renderOrders();});});
+
+// Export guard
+var logEl=$("exportLog");
+function elog(s){logEl.textContent+=s+"\n";logEl.scrollTop=1e6;}
+$("rowsRange").addEventListener("input",function(){$("rowsVal").textContent=Number(this.value).toLocaleString();});
+function runExport(forceSafe){
+  var role=$("roleSel").value, rows=parseInt($("rowsRange").value,10), q=forceSafe?"agg":$("querySel").value;
+  var when=new Date().toLocaleTimeString();
+  if(q==="raw"){showAlert("exportAlert","block","✕ BLOCKED — Non-parameterized query. Typed-in values in SQL are an injection and leakage risk. Rewrite it as a parameterized query.");elog("["+when+"] BLOCK role="+role+" reason=non-parameterized query");return;}
+  if(q==="bulk"&&rows>100&&role!=="admin"){showAlert("exportAlert","block","✕ BLOCKED & ALERTED — Bulk personal-data export: "+rows.toLocaleString()+" rows with name, email, phone and address requested by role “"+role+"”. Security alert raised. Limit is 100 rows; use the masked, capped query instead.");elog("["+when+"] 🚨 ALERT+BLOCK role="+role+" rows="+rows+" dataset=full PII export");return;}
+  if(q==="bulk"&&role==="admin"){showAlert("exportAlert","warn","⚠ ALLOWED WITH LOGGING — Data Admin bulk export of "+rows.toLocaleString()+" rows. This is fully logged, watermarked, and expires in 24 hours. Alert sent to the data owner.");elog("["+when+"] ALLOW (logged) role=admin rows="+rows+" dataset=full PII");return;}
+  if(q==="masked"&&rows>500){showAlert("exportAlert","warn","⚠ CAPPED — Masked customer list is capped at 500 rows for this role. Export ran with 500 rows, emails masked (a***@example.test).");elog("["+when+"] ALLOW-CAPPED role="+role+" rows=500/ "+rows+" dataset=masked");return;}
+  showAlert("exportAlert","ok","✓ ALLOWED — "+(q==="agg"?"Aggregated export contains no personal data.":"Masked export within limits.")+" "+Math.min(rows,q==="masked"?500:rows).toLocaleString()+" rows exported, action logged.");
+  elog("["+when+"] ALLOW role="+role+" rows="+rows+" dataset="+q);
 }
-let breachRows=[];
-function breachScope(){
-  breachRows = orders.filter(o=>o.age>200).slice(0,25).map(o=>({order:o.id, name:o.name, fields:"name, email, phone, shipping address, order number"}));
-  document.getElementById("breachOut").textContent =
-    `System: ${document.getElementById("system").value}\nDate range: ${document.getElementById("range").value}\nAffected synthetic customers in sample: ${breachRows.length}\nExposed fields: name, email, phone, shipping address, order number\n\nNotification draft:\n"We are writing to let you know that personal information associated with your order may have been accessed. We have revoked the affected access, completed a retention sweep, and are providing guidance on phishing and suspicious messages. This is a synthetic demo, not a real incident."`;
-}
-function downloadCSV(){
-  if(!breachRows.length) breachScope();
-  const csv="order,customer,fields\n"+breachRows.map(r=>`${r.order},${r.name},"${r.fields}"`).join("\n");
-  const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download="breach-scope-synthetic.csv"; a.click();
-}
-renderKPIs(); renderOrders();
+$("exportBtn").addEventListener("click",function(){runExport(false);});
+$("exportSafeBtn").addEventListener("click",function(){runExport(true);});
+
+// Vendor attestation — deterministic synthetic actuals
+var vendorData={north:{actual:1200,found:1200,label:"NorthPeak Fulfilment"},harbor:{actual:1200,found:947,label:"HarborLine Logistics"},clear:{actual:1200,found:1200,label:"ClearPost 3PL"}};
+$("vendorSel").addEventListener("change",function(){var v=vendorData[this.value];$("claimInput").value=(this.value==="harbor"?1200:1200);});
+$("attestBtn").addEventListener("click",function(){
+  var key=$("vendorSel").value,v=vendorData[key],claim=parseInt($("claimInput").value||"0",10);
+  var deleted=v.found, remaining=v.actual-deleted;
+  if(claim!==deleted||remaining>0){
+    showAlert("attestAlert","block","✕ MISMATCH FLAGGED — "+v.label+" claimed "+claim.toLocaleString()+" deletions. Recount found "+deleted.toLocaleString()+" actually deleted and "+remaining.toLocaleString()+" records still present past the 90-day window. Attestation rejected pending remediation.");
+    $("attestResult").innerHTML='<p><b>Claimed:</b> '+claim.toLocaleString()+' &nbsp;·&nbsp; <b>Actually deleted:</b> '+deleted.toLocaleString()+' &nbsp;·&nbsp; <b>Still present:</b> <span style="color:var(--red);font-weight:800">'+remaining.toLocaleString()+'</span></p><h3>Sample records still present (synthetic)</h3><table><thead><tr><th>Record</th><th>Age</th><th>Fields still held</th></tr></thead><tbody>'+[0,1,2].map(function(i){var o=orders[(i*7+3)%orders.length];return "<tr><td data-l='Record'><b>"+o.id+"</b></td><td data-l='Age'>"+(118+i*9)+"d</td><td data-l='Fields'>name, email, phone, street address</td></tr>";}).join("")+'</tbody></table><p class="sub">Action: vendor must delete the remaining '+remaining.toLocaleString()+' records and re-attest with a batch certificate before the next shipment cycle.</p>';
+  } else {
+    showAlert("attestAlert","ok","✓ ATTESTATION VERIFIED — "+v.label+" claimed "+claim.toLocaleString()+" deletions and the recount matches exactly. No sampled record past the window still holds personal data.");
+    $("attestResult").innerHTML='<p><b>Claimed:</b> '+claim.toLocaleString()+' · <b>Actually deleted:</b> '+deleted.toLocaleString()+' · <b>Still present:</b> 0</p><p class="sub">Sample of 25 records checked — all anonymised, hashes match the vendor batch certificate.</p>';
+  }
+});
+
+// Breach scope
+var sysFields={vault:["Full name","Email","Phone","Street address","Order number","Order total"],bi:["Full name","Email","Order number","Order total"],vendor:["Full name","Phone","Street address","Order number"],email:["Full name","Email","Order number"]};
+var sysNames={vault:"Order Vault",bi:"BI Warehouse",vendor:"Vendor Portal",email:"Email Archive"};
+var lastBreach=[];
+$("breachBtn").addEventListener("click",function(){
+  var sys=$("sysSel").value, from=new Date($("dFrom").value), to=new Date($("dTo").value); to.setHours(23,59,59);
+  if(isNaN(from)||isNaN(to)||from>to){$("breachSummary").innerHTML='<div class="alert show warn">Pick a valid date range (from before to).</div>';return;}
+  // For vault/bi/vendor, anonymised records expose no PII — that is the point
+  lastBreach=orders.filter(function(o){return o.date>=from&&o.date<=to&&o.status!=="anonymised";});
+  var fields=sysFields[sys];
+  $("fieldChips").innerHTML=fields.map(function(f){return '<span class="field">'+f+'</span>';}).join("")+'<span class="field safe">Payment card — never stored</span><span class="field safe">Password — not in this system</span>';
+  $("breachSummary").innerHTML='<div class="alert show warn" style="display:block"><b>'+lastBreach.length+' synthetic customers</b> in scope for '+sysNames[sys]+' between '+$("dFrom").value+' and '+$("dTo").value+'. Records already anonymised by the retention sweep were excluded automatically — deletion before a breach is scope that never happens.</div>';
+  $("breachTable").innerHTML=lastBreach.length?'<table><thead><tr><th>Customer</th><th>Order</th><th>Date</th></tr></thead><tbody>'+lastBreach.slice(0,8).map(function(o){return "<tr><td data-l='Customer'><b>"+o.name+"</b><br><span class='mono'>"+o.email+"</span></td><td data-l='Order'>"+o.id+"</td><td data-l='Date'>"+o.date.toISOString().slice(0,10)+"</td></tr>";}).join("")+'</tbody></table><p class="sub">Showing 8 of '+lastBreach.length+' — download the CSV for the full list.</p>':'<p class="sub">No affected customers in this range — every record in the window had already been anonymised.</p>';
+  $("notifDraft").value="Subject: Important notice about your personal data — "+sysNames[sys]+"\n\nDear customer,\n\nWe are writing to tell you about a security incident involving our "+sysNames[sys]+" system, covering orders placed between "+$("dFrom").value+" and "+$("dTo").value+".\n\nYou are receiving this notice because your order ("+(lastBreach[0]?lastBreach[0].id:"—")+" and "+Math.max(lastBreach.length-1,0)+" similar orders) was in the affected set of "+lastBreach.length+" customers.\n\nFields involved: "+fields.join(", ")+".\nFields NOT involved: payment card details (never stored in this system) and account passwords.\n\nWhat we have done: contained the system, revoked access, and confirmed that records already past our 90-day retention window had been anonymised and were not exposed.\n\nWhat you can do: be alert to phishing emails referencing a recent order, and contact us at privacy@example.test if anything looks suspicious.\n\nWe are sorry this happened. We will publish a follow-up with the verified final count — not an estimate — once the review closes.\n\n— Data Protection Team (synthetic draft, generated by RetentionGuard)";
+  toast("Breach scope generated · "+lastBreach.length+" customers");
+});
+function copyText(txt,msg){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(function(){toast(msg);},function(){fallback();});}else{fallback();}function fallback(){var ta=document.createElement("textarea");ta.value=txt;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast(msg);}catch(e){toast("Copy failed — select the text manually");}ta.remove();}}
+$("copyNotif").addEventListener("click",function(){if(!$("notifDraft").value){toast("Generate a scope list first");return;}copyText($("notifDraft").value,"Notification draft copied");});
+function download(name,content,type){var b=new Blob([content],{type:type});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(u);},500);}
+$("dlNotif").addEventListener("click",function(){if(!$("notifDraft").value){toast("Generate a scope list first");return;}download("breach-notification-draft.txt",$("notifDraft").value,"text/plain");});
+$("dlCsv").addEventListener("click",function(){if(!lastBreach.length){toast("Generate a scope list first");return;}var csv="order_id,customer,email,date,fields_exposed\n"+lastBreach.map(function(o){return o.id+',"'+o.name+'",'+o.email+","+o.date.toISOString().slice(0,10)+',"'+sysFields[$("sysSel").value].join("; ")+'"';}).join("\n");download("breach-scope-affected.csv",csv,"text/csv");toast("Affected list downloaded");});
+genData(); renderAll();
+})();
 </script>
 </body>
 </html>
